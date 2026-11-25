@@ -3,7 +3,7 @@
     "description": "Mago Assistant tool that finds products, parent products and product attributes",
     "type": "magento2-module",
     "license": "MIT",
-    "version": "1.0.0",
+    "homepage": "https://github.com/sparkable-agency/mago-product-finder",
     "require": {
         "php": "^8.3",
         "mago-assistant/magento2-mago": "^1.1",

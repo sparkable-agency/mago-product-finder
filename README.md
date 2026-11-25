@@ -1,6 +1,6 @@
 # Mago Product Finder
 
-A tool for the [Mago](https://github.com/mago-assistant/magento2-mago) admin assistant. It finds products and product attributes. It writes nothing.
+A tool for the [Mago](https://packagist.org/packages/mago-assistant/magento2-mago) admin assistant. It finds products and product attributes. It writes nothing.
 
 | Action | What it does |
 | --- | --- |
@@ -16,10 +16,13 @@ Example questions:
 ## Installation
 
 ```
+composer config repositories.sparkable-mago-product-finder vcs https://github.com/sparkable-agency/mago-product-finder
 composer require sparkable/magento-mago-product-finder
 bin/magento module:enable Sparkable_MagoProductFinder
 bin/magento setup:upgrade
 ```
+
+The `composer config` line adds the GitHub repository of this package.
 
 ## Attribute access
 
