@@ -1,0 +1,8 @@
+{
+    "catalog_eav_attribute": {
+        "column": {
+            "mago_set_values": true,
+            "mago_add_options": true
+        }
+    }
+}

@@ -1,0 +1,30 @@
+{
+    "name": "sparkable/magento-mago-product-finder",
+    "description": "Mago Assistant tool that finds products, parent products and product attributes",
+    "type": "magento2-module",
+    "license": "MIT",
+    "version": "1.0.0",
+    "require": {
+        "php": "^8.3",
+        "mago-assistant/magento2-mago": "^1.1",
+        "magento/framework": "*",
+        "magento/module-bundle": "*",
+        "magento/module-catalog": "*",
+        "magento/module-config": "*",
+        "magento/module-configurable-product": "*",
+        "magento/module-eav": "*",
+        "magento/module-grouped-product": "*",
+        "magento/module-store": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Sparkable\\MagoProductFinder\\": ""
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

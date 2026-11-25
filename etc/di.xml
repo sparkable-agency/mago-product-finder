@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="MagoAssistant\Mago\Service\Tool\ToolRegistry">
+        <arguments>
+            <argument name="tools" xsi:type="array">
+                <item name="sparkable_product_finder" xsi:type="object">Sparkable\MagoProductFinder\Service\Tool\ProductFinder</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Sparkable\MagoProductFinder\Service\Tool\ProductFinder">
+        <arguments>
+            <argument name="actions" xsi:type="array">
+                <item name="find_products" xsi:type="object">Sparkable\MagoProductFinder\Service\Tool\ProductFinder\FindProductsAction</item>
+                <item name="parent_products" xsi:type="object">Sparkable\MagoProductFinder\Service\Tool\ProductFinder\ParentProductsAction</item>
+                <item name="list_attributes" xsi:type="object">Sparkable\MagoProductFinder\Service\Tool\ProductFinder\ListAttributesAction</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Sparkable\MagoProductFinder\Model\ProductSelection">
+        <arguments>
+            <argument name="collectionProcessor" xsi:type="object">Magento\Catalog\Model\Api\SearchCriteria\ProductCollectionProcessor</argument>
+        </arguments>
+    </type>
+    <type name="Sparkable\MagoProductFinder\Model\ProductRelations">
+        <arguments>
+            <argument name="parentTypes" xsi:type="array">
+                <item name="configurable" xsi:type="object">Magento\ConfigurableProduct\Model\Product\Type\Configurable</item>
+                <item name="grouped" xsi:type="object">Magento\GroupedProduct\Model\Product\Type\Grouped</item>
+                <item name="bundle" xsi:type="object">Magento\Bundle\Model\Product\Type</item>
+            </argument>
+        </arguments>
+    </type>
+</config>
