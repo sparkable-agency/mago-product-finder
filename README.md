@@ -15,14 +15,13 @@ Example questions:
 
 ## Installation
 
+The package is on Packagist: [sparkable/magento-mago-product-finder](https://packagist.org/packages/sparkable/magento-mago-product-finder).
+
 ```
-composer config repositories.sparkable-mago-product-finder vcs https://github.com/sparkable-agency/mago-product-finder
 composer require sparkable/magento-mago-product-finder
 bin/magento module:enable Sparkable_MagoProductFinder
 bin/magento setup:upgrade
 ```
-
-The `composer config` line adds the GitHub repository of this package.
 
 ## Attribute access
 
