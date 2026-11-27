@@ -46,7 +46,7 @@ class ListAttributesAction implements ActionInterface
             'search' => [
                 'type' => 'string',
                 'description' => 'Words to find. A word matches an attribute code, an attribute label or an '
-                    . 'exact option label, e.g. "color" or "Red"',
+                    . 'option label that contains it, e.g. "color" or "Red"',
             ],
             'input_type' => [
                 'type' => 'string',
@@ -83,6 +83,7 @@ class ListAttributesAction implements ActionInterface
                 'is_required',
                 'may_set_values',
                 'may_add_options',
+                'matching_options',
             ],
             [PiiClass::PUBLIC]
         );
@@ -107,6 +108,7 @@ class ListAttributesAction implements ActionInterface
         $inputType = is_string($params['input_type'] ?? null) ? trim($params['input_type']) : '';
 
         $filters = [];
+        $optionMatches = [];
         if ($codes) {
             $filters[] = $this->createListFilter(array_map(trim(...), $codes));
         }
@@ -117,9 +119,9 @@ class ListAttributesAction implements ActionInterface
                 $group[] = ['field' => 'attribute_code', 'value' => '%' . $word . '%', 'condition_type' => 'like'];
                 $group[] = ['field' => 'frontend_label', 'value' => '%' . $word . '%', 'condition_type' => 'like'];
             }
-            $optionCodes = $this->attributeSuggester->findCodesByOptionLabels([$search, ...$words]);
-            if ($optionCodes) {
-                $group[] = $this->createListFilter($optionCodes);
+            $optionMatches = $this->attributeSuggester->findOptionMatches([$search, ...$words]);
+            if ($optionMatches) {
+                $group[] = $this->createListFilter(array_map(strval(...), array_keys($optionMatches)));
             }
             $filters[] = $group;
         }
@@ -141,7 +143,10 @@ class ListAttributesAction implements ActionInterface
             return ['error' => 'Failed to list attributes: ' . $result['error']];
         }
 
-        $attributes = array_map($this->describe(...), array_values($result['items'] ?? []));
+        $attributes = array_map(
+            fn (array $row): array => $this->describe($row, $optionMatches),
+            array_values($result['items'] ?? [])
+        );
 
         return [
             'total_count' => (int)($result['total_count'] ?? 0),
@@ -155,12 +160,12 @@ class ListAttributesAction implements ActionInterface
         return ['field' => 'attribute_code', 'value' => implode(',', $codes), 'condition_type' => 'in'];
     }
 
-    private function describe(array $row): array
+    private function describe(array $row, array $optionMatches): array
     {
         $code = (string)($row['attribute_code'] ?? '');
         $attribute = $this->eavConfig->getAttribute(Product::ENTITY, $code);
 
-        return [
+        return array_filter([
             'attribute_code' => $code,
             'label' => (string)($row['default_frontend_label'] ?? ''),
             'input_type' => (string)($row['frontend_input'] ?? ''),
@@ -169,6 +174,7 @@ class ListAttributesAction implements ActionInterface
             'is_required' => !empty($row['is_required']),
             'may_set_values' => $this->attributeAccess->maySetValues($attribute),
             'may_add_options' => $this->attributeAccess->mayAddOptions($attribute),
-        ];
+            'matching_options' => $optionMatches[$code] ?? [],
+        ], static fn (mixed $value): bool => $value !== []);
     }
 }

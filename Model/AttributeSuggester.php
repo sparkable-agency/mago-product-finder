@@ -5,10 +5,14 @@ namespace Sparkable\MagoProductFinder\Model;
 
 use Magento\Catalog\Model\ResourceModel\Product\Attribute\CollectionFactory as AttributeCollectionFactory;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\CollectionFactory as OptionCollectionFactory;
+use Magento\Framework\DB\Select;
 
 class AttributeSuggester
 {
     private const int HINT_LIMIT = 5;
+    private const int PARTIAL_MATCH_MIN_LENGTH = 3;
+    private const int MATCHED_LABEL_LIMIT = 10;
+    private const int MATCHED_ROW_LIMIT = 500;
 
     public function __construct(
         private readonly AttributeCollectionFactory $attributeCollectionFactory,
@@ -35,9 +39,55 @@ class AttributeSuggester
         return $message;
     }
 
-    public function findCodesByOptionLabels(array $labels): array
+    public function findOptionMatches(array $terms): array
     {
-        return array_keys($this->findByOptionLabels($labels));
+        $terms = array_values(array_unique(array_filter(array_map(trim(...), $terms), strlen(...))));
+        if (!$terms) {
+            return [];
+        }
+
+        $options = $this->optionCollectionFactory->create();
+        $connection = $options->getConnection();
+        $conditions = [$connection->quoteInto('label.value IN (?)', $terms)];
+        foreach ($terms as $term) {
+            if (mb_strlen($term) >= self::PARTIAL_MATCH_MIN_LENGTH) {
+                $conditions[] = $connection->quoteInto('label.value LIKE ?', '%' . addcslashes($term, '%_\\') . '%');
+            }
+        }
+
+        $select = $options->getSelect()
+            ->reset(Select::COLUMNS)
+            ->join(
+                ['label' => $options->getTable('eav_attribute_option_value')],
+                'label.option_id = main_table.option_id',
+                []
+            )
+            ->join(
+                ['attribute' => $options->getTable('eav_attribute')],
+                'attribute.attribute_id = main_table.attribute_id',
+                ['attribute_code']
+            )
+            ->join(
+                ['catalog_attribute' => $options->getTable('catalog_eav_attribute')],
+                'catalog_attribute.attribute_id = main_table.attribute_id',
+                []
+            )
+            ->where(implode(' OR ', $conditions));
+
+        $codes = $connection->fetchCol((clone $select)->distinct()->order('attribute.attribute_code ASC'));
+        $matches = array_fill_keys($codes, []);
+        $labelSelect = $select
+            ->columns(['label' => 'label.value'])
+            ->group(['attribute.attribute_code', 'label.value'])
+            ->order(['attribute.attribute_code ASC', 'MIN(label.store_id) ASC', 'MIN(main_table.sort_order) ASC'])
+            ->limit(self::MATCHED_ROW_LIMIT);
+        foreach ($connection->fetchAll($labelSelect) as $row) {
+            if (count($matches[$row['attribute_code']] ?? []) < self::MATCHED_LABEL_LIMIT) {
+                $matches[$row['attribute_code']][] = $row['label'];
+            }
+        }
+
+        return $matches;
     }
 
     private function findByName(string $text): array

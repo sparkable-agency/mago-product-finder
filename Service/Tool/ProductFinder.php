@@ -46,6 +46,8 @@ class ProductFinder extends AbstractSkill implements PresentableToolInterface
 - A filter needs the real attribute code. Codes and labels differ per store and can be in another language.
   When a filter fails on an unknown attribute, use the attribute that the error suggests, or call
   "list_attributes" with the word or the option label.
+- "list_attributes" with a search also finds option labels that contain the word. matching_options lists the
+  labels it found. Name these labels in the answer.
 - total_count is the number of matching products. count is the number of rows shown.
 - Children of a parent: "find_products" with a filter on parent_sku.
 - Siblings of a SKU: call "parent_products", then "find_products" with a filter on parent_sku for each parent.

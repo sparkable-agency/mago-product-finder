@@ -6,12 +6,13 @@ A tool for the [Mago](https://packagist.org/packages/mago-assistant/magento2-mag
 | --- | --- |
 | `find_products` | Counts and lists products by SKU, attribute filters, category or parent product, with the values of chosen attributes. |
 | `parent_products` | Finds the configurable, grouped or bundle parents of a child SKU. |
-| `list_attributes` | Finds product attributes by code, label or option label. |
+| `list_attributes` | Finds product attributes by code, label or option label. An option matches when its label contains the search word. |
 
 Example questions:
 
 - "Give me five red products."
 - "Which products are siblings of SKU gear-44t-red?"
+- "Which attributes have an option with “Anthracite”?"
 
 ## Installation
 
